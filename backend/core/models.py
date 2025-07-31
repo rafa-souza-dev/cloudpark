@@ -10,16 +10,16 @@ class BaseEntity(models.Model):
         abstract = True
 
 class Priority(models.TextChoices):
-    LOW = 'low', 'Low'
-    MEDIUM = 'medium', 'Medium'
-    HIGH = 'high', 'High'
-    CRITICAL = 'critical', 'Critical'
+    LOW = 'low', 'Baixa'
+    MEDIUM = 'medium', 'Média'
+    HIGH = 'high', 'Alta'
+    CRITICAL = 'critical', 'Crítica'
 
 class TicketStatus(models.TextChoices):
-    OPEN = 'open', 'Open'
-    IN_PROGRESS = 'in_progress', 'In Progress'
-    RESOLVED = 'resolved', 'Resolved'
-    CANCELED = 'canceled', 'Canceled'
+    OPEN = 'open', 'Aberto'
+    IN_PROGRESS = 'in_progress', 'Em Atendimento'
+    RESOLVED = 'resolved', 'Resolvido'
+    CANCELED = 'canceled', 'Cancelado'
 
 class Ticket(BaseEntity):
     title = models.CharField(max_length=255)
