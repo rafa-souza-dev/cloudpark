@@ -1,5 +1,9 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 
 
 class CustomUserManager(BaseUserManager):
@@ -44,3 +48,24 @@ class User(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name = "Usuário"
         verbose_name_plural = "Usuários"
+
+
+@receiver(post_save, sender=User)
+def add_attendant_permissions(sender, instance, created, **kwargs):
+    if instance.profile == 'attendant':
+        try:
+            from core.models import Ticket
+            content_type = ContentType.objects.get_for_model(Ticket)
+            add_permission = Permission.objects.get(content_type=content_type, codename='add_ticket')
+            change_permission = Permission.objects.get(content_type=content_type, codename='change_ticket')
+            view_permission = Permission.objects.get(content_type=content_type, codename='view_ticket')
+
+            if not instance.user_permissions.filter(codename='add_ticket').exists():
+                instance.user_permissions.add(add_permission, change_permission, view_permission)
+
+            if not instance.is_staff:
+                instance.is_staff = True
+                instance.save(update_fields=['is_staff'])
+
+        except Exception as e:
+            print(f"Erro ao adicionar permissões para atendente: {e}")
