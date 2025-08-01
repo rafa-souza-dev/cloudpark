@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from core.views import TicketViewSet
+from authentication.views import login_view, refresh_token_view
 
 router = DefaultRouter()
 router.register(r'tickets', TicketViewSet, basename='ticket')
@@ -25,4 +26,6 @@ router.register(r'tickets', TicketViewSet, basename='ticket')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+    path('api/auth/login/', login_view, name='login'),
+    path('api/auth/refresh/', refresh_token_view, name='refresh'),
 ]
