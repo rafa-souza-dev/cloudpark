@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 from core.views import TicketViewSet
 from authentication.views import login_view, refresh_token_view
 
@@ -28,4 +29,9 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('api/auth/login/', login_view, name='login'),
     path('api/auth/refresh/', refresh_token_view, name='refresh'),
+    
+    # Swagger URLs
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]
