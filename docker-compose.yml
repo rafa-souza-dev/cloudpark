@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: cloudpark-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - backend_data:/app/data
+      - ./backend:/app
+    environment:
+      - DEBUG=True
+      - SECRET_KEY=your-secret-key-here
+    networks:
+      - cloudpark-network
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: cloudpark-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - cloudpark-network
+    restart: unless-stopped
+
+volumes:
+  backend_data:
+    driver: local
+
+networks:
+  cloudpark-network:
+    driver: bridge 
