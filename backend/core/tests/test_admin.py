@@ -56,8 +56,19 @@ class TicketAdminTest(TestCase):
         expected_fields = ['title', 'priority', 'status', 'attendant', 'created_at']
         self.assertEqual(self.ticket_admin.list_display, expected_fields)
 
-    def test_get_fieldsets_creation(self):
+    def test_get_fieldsets_creation_attendant(self):
         request = self._create_request(self.attendant_user)
+        fieldsets = self.ticket_admin.get_fieldsets(request, obj=None)
+        
+        basic_fields = fieldsets[0][1]['fields']
+        self.assertNotIn('status', basic_fields)
+        self.assertNotIn('attendant', basic_fields)
+        
+        expected_basic_fields = ('title', 'priority', 'description')
+        self.assertEqual(basic_fields, expected_basic_fields)
+
+    def test_get_fieldsets_creation_superuser(self):
+        request = self._create_request(self.superuser)
         fieldsets = self.ticket_admin.get_fieldsets(request, obj=None)
         
         basic_fields = fieldsets[0][1]['fields']
@@ -66,7 +77,7 @@ class TicketAdminTest(TestCase):
         expected_basic_fields = ('title', 'priority', 'status', 'description')
         self.assertEqual(basic_fields, expected_basic_fields)
 
-    def test_save_model_new_ticket(self):
+    def test_save_model_new_ticket_attendant(self):
         request = self._create_request(self.attendant_user)
         ticket = Ticket(
             title='Novo Ticket',
@@ -78,6 +89,21 @@ class TicketAdminTest(TestCase):
         self.ticket_admin.save_model(request, ticket, None, change=False)
         
         self.assertEqual(ticket.attendant, self.attendant_user)
+        self.assertEqual(ticket.status, TicketStatus.OPEN)
+
+    def test_save_model_new_ticket_superuser(self):
+        request = self._create_request(self.superuser)
+        ticket = Ticket(
+            title='Novo Ticket',
+            description='Descrição',
+            priority=Priority.LOW,
+            status=TicketStatus.OPEN
+        )
+        
+        self.ticket_admin.save_model(request, ticket, None, change=False)
+        
+        self.assertEqual(ticket.attendant, self.superuser)
+        self.assertEqual(ticket.status, TicketStatus.OPEN)
 
     def test_get_queryset_superuser(self):
         request = self._create_request(self.superuser)
@@ -143,24 +169,17 @@ class TicketAdminAttendantRestrictionsTest(TestCase):
         setattr(request, '_messages', messages)
         return request
 
-    def test_get_form_attendant_restricts_resolved(self):
+    def test_get_form_attendant_removes_status_field(self):
         request = self._create_request(self.attendant_user)
         form = self.ticket_admin.get_form(request, obj=self.ticket)
         
-        status_field = form.base_fields.get('status')
-        choices = [choice[0] for choice in status_field.choices]
-        
-        self.assertNotIn(TicketStatus.RESOLVED, choices)
-        self.assertIn(TicketStatus.OPEN, choices)
+        self.assertNotIn('status', form.base_fields)
 
-    def test_get_form_technician_has_all_options(self):
+    def test_get_form_technician_has_status_field(self):
         request = self._create_request(self.technician_user)
         form = self.ticket_admin.get_form(request, obj=self.ticket)
         
-        status_field = form.base_fields.get('status')
-        choices = [choice[0] for choice in status_field.choices]
-        
-        self.assertIn(TicketStatus.RESOLVED, choices)
+        self.assertIn('status', form.base_fields)
 
     def test_save_model_attendant_cannot_resolve(self):
         request = self._create_request(self.attendant_user)

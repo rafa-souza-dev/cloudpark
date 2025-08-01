@@ -23,7 +23,21 @@ class TicketAdmin(admin.ModelAdmin):
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super().get_fieldsets(request, obj)
-        if obj is None:
+        
+        if hasattr(request.user, 'profile') and request.user.profile == 'attendant' and not request.user.is_superuser:
+            basic_fields = list(fieldsets[0][1]['fields'])
+            if 'status' in basic_fields:
+                basic_fields.remove('status')
+            fieldsets = (
+                ('Informações Básicas', {
+                    'fields': tuple(basic_fields)
+                }),
+                ('Informações do Sistema', {
+                    'fields': ('attendant', 'created_at', 'updated_at'),
+                    'classes': ('collapse',)
+                }),
+            )
+        elif obj is None and request.user.is_superuser:
             basic_fields = list(fieldsets[0][1]['fields'])
             if 'attendant' in basic_fields:
                 basic_fields.remove('attendant')
@@ -36,25 +50,25 @@ class TicketAdmin(admin.ModelAdmin):
                     'classes': ('collapse',)
                 }),
             )
+        
         return fieldsets
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
 
-        if obj and request.user.profile == 'attendant':
-            status_field = form.base_fields.get('status')
-            if status_field:
-                choices = list(status_field.choices)
-                choices = [choice for choice in choices if choice[0] != TicketStatus.RESOLVED]
-                status_field.choices = choices
+        if hasattr(request.user, 'profile') and request.user.profile == 'attendant' and not request.user.is_superuser:
+            if 'status' in form.base_fields:
+                del form.base_fields['status']
 
         return form
 
     def save_model(self, request, obj, form, change):
         if not change:
             obj.attendant = request.user
+            if hasattr(request.user, 'profile') and request.user.profile == 'attendant' and not request.user.is_superuser:
+                obj.status = TicketStatus.OPEN
         else:
-            if request.user.profile == 'attendant':
+            if hasattr(request.user, 'profile') and request.user.profile == 'attendant' and not request.user.is_superuser:
                 if obj.status == TicketStatus.RESOLVED:
                     original_obj = Ticket.objects.get(pk=obj.pk)
                     if original_obj.status != TicketStatus.RESOLVED:
