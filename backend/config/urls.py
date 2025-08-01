@@ -25,7 +25,7 @@ router = DefaultRouter()
 router.register(r'tickets', TicketViewSet, basename='ticket')
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('', admin.site.urls),
     path('api/', include(router.urls)),
     path('api/auth/login/', login_view, name='login'),
     path('api/auth/refresh/', refresh_token_view, name='refresh'),
