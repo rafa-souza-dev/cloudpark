@@ -1,4 +1,3 @@
-from django.test import TestCase
 from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
@@ -54,7 +53,6 @@ class JWTAuthenticationTest(APITestCase):
         self.assertIn('error', response.data)
 
     def test_refresh_token_success(self):
-        # Primeiro fazer login para obter tokens
         login_response = self.client.post(reverse('login'), {
             'email': 'tecnico@test.com',
             'password': 'testpass123'
@@ -62,7 +60,6 @@ class JWTAuthenticationTest(APITestCase):
         
         refresh_token = login_response.data['refresh_token']
         
-        # Usar refresh token para obter novo access token
         response = self.client.post(reverse('refresh'), {
             'refresh_token': refresh_token
         })
@@ -79,7 +76,6 @@ class JWTAuthenticationTest(APITestCase):
         self.assertIn('error', response.data)
 
     def test_api_access_with_jwt(self):
-        # Fazer login
         login_response = self.client.post(reverse('login'), {
             'email': 'tecnico@test.com',
             'password': 'testpass123'
@@ -87,7 +83,6 @@ class JWTAuthenticationTest(APITestCase):
         
         access_token = login_response.data['access_token']
         
-        # Acessar API com token
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
         response = self.client.get(reverse('ticket-list'))
         

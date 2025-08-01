@@ -25,13 +25,13 @@ router = DefaultRouter()
 router.register(r'tickets', TicketViewSet, basename='ticket')
 
 urlpatterns = [
-    path('', admin.site.urls),
-    path('api/', include(router.urls)),
     path('api/auth/login/', login_view, name='login'),
     path('api/auth/refresh/', refresh_token_view, name='refresh'),
+    path('api/', include(router.urls)),
     
-    # Swagger URLs
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    
+    path('', admin.site.urls),
 ]
