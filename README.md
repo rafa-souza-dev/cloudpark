@@ -22,97 +22,47 @@ cloudpark/
 └── docker-compose.yml
 ```
 
-## Como Executar
+## Como rodar as aplicações
 
-### 1. Construir e iniciar todos os serviços
+### 1. Criar arquivo `.env` na raiz do projeto usando como base o `.env.example`
 
 ```bash
-docker-compose up --build
+SECRET_KEY="django-insecure-omunt755isl)+0@+6+dqsnl4otcua^whl#$ro1qs6@nezq%9!2"
+DEBUG=True
 ```
 
-### 2. Executar em background
+### 2. Construir e iniciar as aplicações
 
 ```bash
-docker-compose up -d --build
-```
-
-### 3. Parar os serviços
-
-```bash
-docker-compose down
-```
-
-### 4. Parar e remover volumes
-
-```bash
-docker-compose down -v
+docker compose up --build
 ```
 
 ## Acessos
 
-- **Frontend**: http://localhost
-- **Backend API**: http://localhost:8000
-- **Admin Django**: http://localhost:8000/admin
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:8000/api/docs/
 
-## Volumes
+### Usuários criados via migration (como seed)
 
-O projeto utiliza volumes para persistir dados:
+- Atendente
+    - email: atendente@cloudpark.com
+    - senha: atendente123
+    - Acessar http://localhost:8000/
+- Técnico
+    - email: tecnico@cloudpark.com
+    - senha: tecnico123
+    - Acessar http://localhost:5173
 
-- `backend_data`: Armazena o banco SQLite do Django
-- `./backend:/app`: Volume para desenvolvimento (mapeia o código local)
+## Como executar os testes automatizados
 
-## Comandos Úteis
-
-### Executar migrações do Django
-
-```bash
-docker-compose exec backend python manage.py migrate
-```
-
-### Criar superusuário
+### Rodar comando no terminal para entrar no container de backend
 
 ```bash
-docker-compose exec backend python manage.py createsuperuser
+docker compose exec backend sh
 ```
 
-### Acessar shell do backend
+### Rodar comando para executar testes dentro do container
 
 ```bash
-docker-compose exec backend python manage.py shell
+python3 manage.py test
 ```
-
-### Ver logs
-
-```bash
-# Todos os serviços
-docker-compose logs
-
-# Apenas backend
-docker-compose logs backend
-
-# Apenas frontend
-docker-compose logs frontend
-```
-
-## Desenvolvimento
-
-Para desenvolvimento, você pode usar o volume mapeado no backend:
-
-```bash
-# O código local será refletido no container
-docker-compose up backend
-```
-
-## Variáveis de Ambiente
-
-As variáveis de ambiente estão definidas no `docker-compose.yml`:
-
-- `DEBUG=True`: Modo debug do Django
-- `SECRET_KEY`: Chave secreta do Django (altere em produção)
-
-## Notas
-
-- O backend usa SQLite como banco de dados
-- O frontend é servido pelo Nginx
-- Os dados do banco são persistidos no volume `backend_data`
-- Para produção, considere usar um banco de dados mais robusto como PostgreSQL 
