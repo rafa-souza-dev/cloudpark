@@ -1,6 +1,7 @@
 from django.db import models
 
-from django.contrib.auth.models import User
+from authentication.models import User
+
 
 class BaseEntity(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -9,17 +10,20 @@ class BaseEntity(models.Model):
     class Meta:
         abstract = True
 
+
 class Priority(models.TextChoices):
     LOW = 'low', 'Baixa'
     MEDIUM = 'medium', 'Média'
     HIGH = 'high', 'Alta'
     CRITICAL = 'critical', 'Crítica'
 
+
 class TicketStatus(models.TextChoices):
     OPEN = 'open', 'Aberto'
     IN_PROGRESS = 'in_progress', 'Em Atendimento'
     RESOLVED = 'resolved', 'Resolvido'
     CANCELED = 'canceled', 'Cancelado'
+
 
 class Ticket(BaseEntity):
     title = models.CharField(max_length=255)
