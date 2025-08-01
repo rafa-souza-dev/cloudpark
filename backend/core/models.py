@@ -26,19 +26,21 @@ class TicketStatus(models.TextChoices):
 
 
 class Ticket(BaseEntity):
-    title = models.CharField(max_length=255)
+    title = models.CharField(verbose_name='Título', max_length=255)
     priority = models.CharField(
+        verbose_name='Prioridade',
         max_length=10,
         choices=Priority.choices,
         default=Priority.MEDIUM
     )
     status = models.CharField(
+        verbose_name='Status',
         max_length=20,
         choices=TicketStatus.choices,
         default=TicketStatus.OPEN
     )
-    description = models.TextField(blank=True, null=True, default=None)
-    attendant = models.ForeignKey(User, on_delete=models.CASCADE)
+    description = models.TextField(verbose_name='Descrição', blank=True, null=True, default=None)
+    attendant = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Atendente')
 
     def __str__(self):
         return self.title

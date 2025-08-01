@@ -25,10 +25,11 @@ class UserProfile(models.TextChoices):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(unique=True)
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
+    email = models.EmailField(verbose_name='E-mail' ,unique=True)
+    is_active = models.BooleanField(verbose_name='É ativo' ,default=True)
+    is_staff = models.BooleanField(verbose_name='É membro' ,default=False)
     profile = models.CharField(
+        verbose_name='Tipo de usuário',
         max_length=20,
         choices=UserProfile.choices,
         default=UserProfile.ATTENDANT
@@ -39,3 +40,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+    class Meta:
+        verbose_name = "Usuário"
+        verbose_name_plural = "Usuários"
